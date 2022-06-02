@@ -4,10 +4,10 @@ CREATE TABLE IF NOT EXISTS countries (
     iso_code VARCHAR(10) PRIMARY KEY NOT NULL,
     name VARCHAR(128) NOT NULL,
     iso_3 VARCHAR(32) DEFAULT NULL,
-    calling_code SMALLINT NOT NULL
+    calling_code SMALLINT NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    modified_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
+    modified_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
     CHECK(calling_code > 0)
 );
 

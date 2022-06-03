@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS countries (
     CHECK(calling_code > 0)
 );
 
+DROP TRIGGER IF EXISTS set_timestamp ON countries;
 CREATE TRIGGER set_timestamp
 BEFORE UPDATE ON countries
 FOR EACH ROW

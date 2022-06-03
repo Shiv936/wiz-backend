@@ -1,0 +1,54 @@
+{
+    "version": "2.0.0",
+    "type": "shell",
+    "command": "go",
+    "cwd": "${workspaceFolder}",
+    "options": {
+        "env": {
+            "PG_HOST": "localhost",
+            "PG_PORT": "5432",
+            "PG_USERNAME": "postgres",
+            "PG_PASSWORD": "password",
+            "PG_DATABASE": "wiz_freight",
+            "PG_DATABASE_PREFIX": "",
+            "TIER": "LOCAL",
+        }
+    },    
+    "tasks": [
+        {
+            "label": "install",
+            "args": ["install", "-v", "./..."],
+            "group": "build",
+        },
+        {
+            "label": "build",
+            "args": ["build", "main.go"],
+            "group": "build",
+        },
+        {
+            "label": "run migrations",
+            "args": [
+                "run", 
+                "main.go", 
+                "-program", 
+                "migrations"
+            ],
+            "group": "build",
+        },
+        {
+            "label": "run api",
+            "args": [
+                "run", 
+                "main.go", 
+                "-program", 
+                "http-api"
+            ],
+            "group": "build",
+        },
+        {
+            "label": "test",
+            "args": ["test", "-v", "./..."],
+            "group": "test",
+        },
+    ],
+}

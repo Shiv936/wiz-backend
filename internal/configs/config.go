@@ -12,6 +12,13 @@ type Config struct {
 	LogConfig  LogConfig
 }
 
+type PgSSLMode string
+
+const (
+	SSL_MODE_REQUIRED PgSSLMode = "require"
+	SSL_MODE_DISABLED PgSSLMode = "disable"
+)
+
 type PgDbConfig struct {
 	Host           string
 	Port           int
@@ -21,6 +28,7 @@ type PgDbConfig struct {
 	DatabasePrefix string
 	MaxConnections int
 	MaxIdle        int
+	SSLMode        PgSSLMode
 }
 
 type LogSink string

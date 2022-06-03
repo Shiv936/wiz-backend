@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS currencies (
     modified_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
 
-CREATE TRIGGER set_timestamp
+DROP TRIGGER IF EXISTS set_timestamp ON currencies;
+CREATE OR REPLACE TRIGGER set_timestamp
 BEFORE UPDATE ON currencies
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();

@@ -168,10 +168,10 @@ INSERT INTO countries (iso_code, name, iso_3, calling_code) VALUES ('CH', 'Switz
 ON CONFLICT (iso_code)
 DO 
    UPDATE SET name = 'Switzerland', iso_3 = 'CHE', calling_code = 41;
-INSERT INTO countries (iso_code, name, iso_3, calling_code) VALUES ('CI', 'Côte d'Ivoire', 'CIV', 225)
+INSERT INTO countries (iso_code, name, iso_3, calling_code) VALUES ('CI', 'Côte d''Ivoire', 'CIV', 225)
 ON CONFLICT (iso_code)
 DO 
-   UPDATE SET name = 'Côte d'Ivoire', iso_3 = 'CIV', calling_code = 225;
+   UPDATE SET name = 'Côte d''Ivoire', iso_3 = 'CIV', calling_code = 225;
 INSERT INTO countries (iso_code, name, iso_3, calling_code) VALUES ('CK', 'Cook Islands', 'COK', 682)
 ON CONFLICT (iso_code)
 DO 

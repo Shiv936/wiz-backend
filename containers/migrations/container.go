@@ -2,14 +2,23 @@ package migrations
 
 import (
 	"database/sql"
+	"fmt"
 	"wizbackend/internal/configs"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 func Initialize(config configs.Config) Container {
-	var conninfo string = "host=localhost port=5432 user=postgres password=password dbname=wiz_freight sslmode=disable"
-	db, err := sql.Open("postgres", conninfo)
+	var conninfo string = fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		config.PgDbConfig.Host,
+		config.PgDbConfig.Port,
+		config.PgDbConfig.Username,
+		config.PgDbConfig.Password,
+		config.PgDbConfig.Database,
+		config.PgDbConfig.SSLMode,
+	)
+	db, err := sql.Open("pgx", conninfo)
 	if err != nil {
 		panic(err)
 	}

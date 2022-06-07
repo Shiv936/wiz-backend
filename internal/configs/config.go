@@ -31,11 +31,11 @@ type PgDbConfig struct {
 	SSLMode        PgSSLMode
 }
 
-type LogSink string
+type LogSink int
 
 const (
-	CONSOLE LogSink = "CONSOLE"
-	STDOUT  LogSink = "STDOUT"
+	CONSOLE LogSink = iota
+	STDOUT  LogSink = iota
 )
 
 type LogConfig struct {

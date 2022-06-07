@@ -10,16 +10,29 @@ import (
 
 func GetConfig(appName string) configs.Config {
 
-	pg_port, err := strconv.Atoi(os.Getenv("PG_PORT"))
+	pgPort, err := strconv.Atoi(os.Getenv("PG_PORT"))
 	if err != nil {
 		// handle error
 		fmt.Println(err)
 		os.Exit(2)
 	}
 
+	var apiPort int = 8080
+	if len(os.Getenv("PORT")) > 0 {
+		p, err := strconv.Atoi(os.Getenv("PORT"))
+
+		if err != nil {
+			// handle error
+			fmt.Println(err)
+			os.Exit(2)
+		} else {
+			apiPort = p
+		}
+	}
+
 	return configs.Config{
 		AppName:   appName,
-		Port:      8080,
+		Port:      apiPort,
 		EnableAPM: false,
 		LogConfig: configs.LogConfig{
 			LogSink:  configs.CONSOLE,
@@ -27,7 +40,7 @@ func GetConfig(appName string) configs.Config {
 		},
 		PgDbConfig: configs.PgDbConfig{
 			Host:           os.Getenv("PG_HOST"),
-			Port:           pg_port,
+			Port:           pgPort,
 			Username:       os.Getenv("PG_USERNAME"),
 			Password:       os.Getenv("PG_PASSWORD"),
 			Database:       os.Getenv("PG_DATABASE"),

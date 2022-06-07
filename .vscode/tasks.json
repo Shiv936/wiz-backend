@@ -12,6 +12,7 @@
             "PG_DATABASE": "wiz_freight",
             "PG_DATABASE_PREFIX": "",
             "TIER": "LOCAL",
+            "PORT": "9000",
         }
     },    
     "tasks": [
@@ -22,7 +23,7 @@
         },
         {
             "label": "build",
-            "args": ["build", "main.go"],
+            "args": ["build", "main.go", "-o", "app"],
             "group": "build",
         },
         {

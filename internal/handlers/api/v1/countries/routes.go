@@ -17,13 +17,13 @@ type routes struct {
 }
 
 func New(
-	activate *activate,
-	deactivate *deactivate,
-	create *create,
-	update *update,
-	delete *delete,
-	list *list,
-	read *read,
+	activate handlers.RouteHandler,
+	deactivate handlers.RouteHandler,
+	create handlers.RouteHandler,
+	update handlers.RouteHandler,
+	delete handlers.RouteHandler,
+	list handlers.RouteHandler,
+	read handlers.RouteHandler,
 ) *routes {
 	return &routes{
 		activate:   activate,

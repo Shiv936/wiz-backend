@@ -171,6 +171,8 @@ func (s *service) mapRepoDomainToService(
 		Name:        c.Name,
 		Iso3:        iso3,
 		CallingCode: c.CallingCode,
+		CreatedAt:   c.CreatedAt,
+		ModifiedAt:  c.ModifiedAt,
 	}
 }
 

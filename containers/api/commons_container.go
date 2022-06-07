@@ -110,7 +110,7 @@ func (c *commonsContainer) getLogger() (logging.Logger, error) {
 			c.logConfig.LogLevel,
 		), nil
 	case configs.STDOUT:
-		return logging.NewConsoleLogger(
+		return logging.NewStdOutLogger(
 			c.appName,
 			c.logConfig.LogLevel,
 		), nil

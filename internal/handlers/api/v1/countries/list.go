@@ -6,7 +6,6 @@ import (
 	"wizbackend/pkg/logging"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sanity-io/litter"
 )
 
 type list struct {
@@ -31,15 +30,87 @@ func (h *list) Handle(ctx *gin.Context) {
 		return
 	}
 
-	litter.Dump(query)
+	var sortField ports.CountriesSortField = ports.COUNTRY_ISO
 
-	ctx.String(http.StatusOK, "Hi there")
+	if query.SortField != nil {
+		switch *query.SortField {
+		case "iso":
+			sortField = ports.COUNTRY_ISO
+		case "created_at":
+			sortField = ports.COUNTRY_CREATED_AT
+		case "modified_at":
+			sortField = ports.COUNTRY_MODIFIED_AT
+		case "name":
+			sortField = ports.COUNTRY_NAME
+		}
+	}
+
+	var sortOrder ports.SortOrder = ports.SORT_ASCENDING
+
+	if query.SortOrder != nil {
+		switch *query.SortOrder {
+		case "asc":
+			sortOrder = ports.SORT_ASCENDING
+		case "desc":
+			sortOrder = ports.SORT_DESCENDING
+		}
+	}
+
+	var filters *ports.CountriesFilters
+
+	if query.ShowDisabled == nil {
+		isActive := true
+		filters = &ports.CountriesFilters{
+			IsActive: &isActive,
+		}
+	}
+
+	var pageNumber uint = 1
+	if query.PageNumber != nil {
+		pageNumber = *query.PageNumber
+	}
+
+	var itemsPerPage uint = 1
+	if query.ItemsPerPage != nil {
+		itemsPerPage = *query.ItemsPerPage
+	}
+
+	countries, err := h.countriesService.FetchMany(
+		pageNumber,
+		itemsPerPage,
+		query.SearchTerm,
+		&ports.CountriesSort{
+			Field: sortField,
+			Order: sortOrder,
+		},
+		filters,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	rc := make([]country, 0)
+
+	for _, c := range countries {
+		rc = append(rc, mapServiceDomainToResponse(c))
+	}
+
+	response := countriesResponse{
+		CurrentPage:  pageNumber,
+		ItemsPerPage: itemsPerPage,
+		Countries:    rc,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 type listRequest struct {
 	PageNumber   *uint   `form:"pn" binding:"omitempty,numeric"`
 	ItemsPerPage *uint   `form:"ipp" binding:"omitempty,numeric"`
-	SortField    *string `form:"sf" binding:"omitempty,alpha,oneof=iso created_at modified_at name"`
+	SortField    *string `form:"sf" binding:"omitempty,alpha,oneof=iso createdat modifiedat name"`
 	SortOrder    *string `form:"so" binding:"omitempty,alpha,oneof=asc desc"`
 	SearchTerm   *string `form:"s"`
+	ShowDisabled *bool   `form:"sd" binding:"omitempty"`
 }

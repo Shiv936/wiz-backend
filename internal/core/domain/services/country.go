@@ -1,9 +1,13 @@
 package services
 
+import "time"
+
 type Country struct {
 	IsoCode     string
 	Name        string
 	Iso3        *string
-	CallingCode int
+	CallingCode uint
 	IsActive    bool
+	CreatedAt   time.Time
+	ModifiedAt  time.Time
 }

@@ -64,7 +64,7 @@ func (r *repository) SelectMany(
 	w := []exp.Expression{}
 
 	if filters.IsActive != nil {
-		w = append(w, goqu.I(IS_ACTIVE).Eq(*filters.IsActive))
+		w = append(w, goqu.C(IS_ACTIVE).Eq(*filters.IsActive))
 	}
 
 	searchClauses := r.buildSearchWhereClauses(search)

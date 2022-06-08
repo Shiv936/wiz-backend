@@ -36,9 +36,9 @@ func (h *list) Handle(ctx *gin.Context) {
 		switch *query.SortField {
 		case "iso":
 			sortField = ports.COUNTRY_ISO
-		case "created_at":
+		case "createdat":
 			sortField = ports.COUNTRY_CREATED_AT
-		case "modified_at":
+		case "modifiedat":
 			sortField = ports.COUNTRY_MODIFIED_AT
 		case "name":
 			sortField = ports.COUNTRY_NAME
@@ -56,11 +56,11 @@ func (h *list) Handle(ctx *gin.Context) {
 		}
 	}
 
-	var filters *ports.CountriesFilters
+	var filters ports.CountriesFilters
 
-	if query.ShowDisabled == nil {
+	if !query.ShowDisabled {
 		isActive := true
-		filters = &ports.CountriesFilters{
+		filters = ports.CountriesFilters{
 			IsActive: &isActive,
 		}
 	}
@@ -79,7 +79,7 @@ func (h *list) Handle(ctx *gin.Context) {
 		pageNumber,
 		itemsPerPage,
 		query.SearchTerm,
-		&ports.CountriesSort{
+		ports.CountriesSort{
 			Field: sortField,
 			Order: sortOrder,
 		},
@@ -93,13 +93,14 @@ func (h *list) Handle(ctx *gin.Context) {
 
 	rc := make([]country, 0)
 
-	for _, c := range countries {
+	for _, c := range countries.Countries {
 		rc = append(rc, mapServiceDomainToResponse(c))
 	}
 
 	response := countriesResponse{
 		CurrentPage:  pageNumber,
 		ItemsPerPage: itemsPerPage,
+		TotalResults: countries.Total,
 		Countries:    rc,
 	}
 
@@ -112,5 +113,5 @@ type listRequest struct {
 	SortField    *string `form:"sf" binding:"omitempty,alpha,oneof=iso createdat modifiedat name"`
 	SortOrder    *string `form:"so" binding:"omitempty,alpha,oneof=asc desc"`
 	SearchTerm   *string `form:"s"`
-	ShowDisabled *bool   `form:"sd" binding:"omitempty"`
+	ShowDisabled bool   `form:"sd" binding:"omitempty"`
 }

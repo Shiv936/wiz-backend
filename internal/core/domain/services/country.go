@@ -11,3 +11,8 @@ type Country struct {
 	CreatedAt   time.Time
 	ModifiedAt  time.Time
 }
+
+type Countries struct {
+	Total     int64
+	Countries []Country
+}

@@ -31,54 +31,54 @@ func (s *service) FetchMany(
 	pageNumber uint,
 	itemsPerPage uint,
 	searchTerm *string,
-	sort *ports.CountriesSort,
-	filters *ports.CountriesFilters,
-) ([]services.Country, error) {
+	sort ports.CountriesSort,
+	filters ports.CountriesFilters,
+) (services.Countries, error) {
 	if pageNumber == 0 {
 		pageNumber = 1
 	}
 
 	offset := (itemsPerPage * (pageNumber - 1))
 
-	sortBy := ports.CountriesSort{
-		Field: ports.COUNTRY_NAME,
-		Order: ports.SORT_ASCENDING,
-	}
-
-	if sort != nil {
-		sortBy = *sort
-	}
-
 	search := ports.CountriesSearch{
 		IsoCode: searchTerm,
 		Name:    searchTerm,
 	}
 
-	dbFilters := ports.CountriesFilters{}
+	countriesChan := make(chan countryListResult, 1)
+	countriesCountChan := make(chan countryCountResult, 1)
 
-	if filters != nil {
-		dbFilters = *filters
-	}
-
-	repoCountries, err := s.countriesRepository.SelectMany(
+	go s.fetchCountriesViaChannel(
 		itemsPerPage,
 		offset,
 		search,
-		sortBy,
-		dbFilters,
+		sort,
+		filters,
+		countriesChan,
 	)
 
-	if err != nil {
-		return []services.Country{}, err
+	go s.fetchCountriesCountViaChannel(
+		search,
+		filters,
+		countriesCountChan,
+	)
+
+	countriesResult := <-countriesChan
+
+	if countriesResult.err != nil {
+		return services.Countries{}, countriesResult.err
 	}
 
-	countries := make([]services.Country, 0)
+	countriesCountResult := <-countriesCountChan
 
-	for _, c := range repoCountries {
-		countries = append(countries, s.mapRepoDomainToService(c))
+	if countriesCountResult.err != nil {
+		return services.Countries{}, countriesCountResult.err
 	}
 
-	return countries, nil
+	return services.Countries{
+		Total:     countriesCountResult.count,
+		Countries: countriesResult.countries,
+	}, nil
 }
 func (s *service) Create(
 	isoCode string,
@@ -171,6 +171,7 @@ func (s *service) mapRepoDomainToService(
 		Name:        c.Name,
 		Iso3:        iso3,
 		CallingCode: c.CallingCode,
+		IsActive:    c.IsActive,
 		CreatedAt:   c.CreatedAt,
 		ModifiedAt:  c.ModifiedAt,
 	}
@@ -190,4 +191,66 @@ func (s *service) fetchOneCountry(
 	}
 
 	return s.mapRepoDomainToService(repoCountry), true, nil
+}
+
+type countryListResult struct {
+	countries []services.Country
+	err       error
+}
+
+func (s *service) fetchCountriesViaChannel(
+	itemsPerPage uint,
+	offset uint,
+	search ports.CountriesSearch,
+	sortBy ports.CountriesSort,
+	filters ports.CountriesFilters,
+	c chan countryListResult,
+) {
+	defer close(c)
+	repoCountries, err := s.countriesRepository.SelectMany(
+		itemsPerPage,
+		offset,
+		search,
+		sortBy,
+		filters,
+	)
+
+	if err != nil {
+		c <- countryListResult{err: err}
+	}
+
+	countries := make([]services.Country, 0)
+
+	for _, c := range repoCountries {
+		countries = append(countries, s.mapRepoDomainToService(c))
+	}
+
+	c <- countryListResult{
+		countries: countries,
+	}
+}
+
+type countryCountResult struct {
+	count int64
+	err   error
+}
+
+func (s *service) fetchCountriesCountViaChannel(
+	search ports.CountriesSearch,
+	filters ports.CountriesFilters,
+	c chan countryCountResult,
+) {
+	defer close(c)
+	count, err := s.countriesRepository.Count(
+		search,
+		filters,
+	)
+
+	if err != nil {
+		c <- countryCountResult{err: err}
+	}
+
+	c <- countryCountResult{
+		count: count,
+	}
 }

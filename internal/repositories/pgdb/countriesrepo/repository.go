@@ -1,7 +1,6 @@
 package countriesrepo
 
 import (
-	"fmt"
 	"strings"
 	"wizbackend/internal/core/domain/repositories/rdbms"
 	"wizbackend/internal/core/ports"
@@ -75,7 +74,7 @@ func (r *repository) SelectMany(
 		w = append(w, searchClauses[0])
 	}
 
-	err := r.goquDB.From(
+	query := r.goquDB.From(
 		TABLE,
 	).Prepared(true).Select(
 		ISO_CODE,
@@ -91,7 +90,9 @@ func (r *repository) SelectMany(
 		limit,
 	).Offset(
 		offset,
-	).ScanStructs(&countries)
+	)
+
+	err := query.ScanStructs(&countries)
 
 	if err != nil {
 		return []rdbms.Country{}, err
@@ -204,6 +205,34 @@ func (r *repository) DeleteOne(
 	return err
 }
 
+func (r *repository) Count(
+	search ports.CountriesSearch,
+	filters ports.CountriesFilters,
+) (int64, error) {
+
+	w := []exp.Expression{}
+
+	if filters.IsActive != nil {
+		w = append(w, goqu.C(IS_ACTIVE).Eq(*filters.IsActive))
+	}
+
+	searchClauses := r.buildSearchWhereClauses(search)
+
+	if len(searchClauses) > 1 {
+		w = append(w, goqu.Or(searchClauses...))
+	} else if len(searchClauses) == 1 {
+		w = append(w, searchClauses[0])
+	}
+
+	count, err := r.goquDB.From(TABLE).Prepared(true).Where(w...).Count()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (r *repository) getOrderedExpression(
 	sort ports.CountriesSort,
 ) exp.OrderedExpression {
@@ -238,9 +267,8 @@ func (r *repository) buildSearchWhereClauses(
 	if search.IsoCode != nil && len(strings.TrimSpace(*search.IsoCode)) > 0 {
 		searchExpressions = append(
 			searchExpressions,
-			goqu.L(
-				fmt.Sprintf("%s @@ TO_TSQUERY(?)", ISO_CODE),
-				strings.TrimSpace(*search.IsoCode),
+			goqu.C(ISO_CODE).Eq(
+				strings.ToUpper(strings.TrimSpace(*search.IsoCode)),
 			),
 		)
 	}
@@ -248,10 +276,7 @@ func (r *repository) buildSearchWhereClauses(
 	if search.Name != nil && len(strings.TrimSpace(*search.Name)) > 0 {
 		searchExpressions = append(
 			searchExpressions,
-			goqu.L(
-				fmt.Sprintf("%s @@ TO_TSQUERY(?)", NAME),
-				strings.TrimSpace(*search.Name),
-			),
+			goqu.C(NAME).ILike("%"+strings.TrimSpace(*search.Name)+"%"),
 		)
 	}
 

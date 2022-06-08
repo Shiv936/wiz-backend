@@ -31,6 +31,10 @@ type RdbmsCountriesRepository interface {
 	DeleteOne(
 		isoCode string,
 	) error
+	Count(
+		search CountriesSearch,
+		filters CountriesFilters,
+	) (int64, error)
 }
 
 type CountriesService interface {
@@ -39,9 +43,9 @@ type CountriesService interface {
 		pageNumber uint,
 		itemsPerPage uint,
 		searchTerm *string,
-		sort *CountriesSort,
-		filters *CountriesFilters,
-	) ([]services.Country, error)
+		sort CountriesSort,
+		filters CountriesFilters,
+	) (services.Countries, error)
 	Create(
 		isoCode string,
 		name string,

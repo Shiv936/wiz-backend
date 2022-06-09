@@ -1,51 +1,35 @@
 package currencies
 
 import (
-	"wizbackend/internal/handlers"
-
 	"github.com/gin-gonic/gin"
 )
 
-type routes struct {
-	activate   handlers.RouteHandler
-	deactivate handlers.RouteHandler
-	create     handlers.RouteHandler
-	update     handlers.RouteHandler
-	delete     handlers.RouteHandler
-	list       handlers.RouteHandler
-	read       handlers.RouteHandler
+type GroupRoutes interface {
+	Initialize(prefix string, r gin.IRouter)
+}
+
+type Routes struct {
+	handler RoutesHandler
 }
 
 func New(
-	activate handlers.RouteHandler,
-	deactivate handlers.RouteHandler,
-	create handlers.RouteHandler,
-	update handlers.RouteHandler,
-	delete handlers.RouteHandler,
-	list handlers.RouteHandler,
-	read handlers.RouteHandler,
-) *routes {
-	return &routes{
-		activate:   activate,
-		deactivate: deactivate,
-		create:     create,
-		delete:     delete,
-		update:     update,
-		list:       list,
-		read:       read,
+	handler RoutesHandler,
+) *Routes {
+	return &Routes{
+		handler: handler,
 	}
 }
 
-func (ro *routes) Initialize(prefix string, r gin.IRouter) {
+func (ro *Routes) Initialize(prefix string, r gin.IRouter) {
 
 	g := r.Group(prefix)
 	{
-		g.GET("", ro.list.Handle)
-		g.GET("/:id", ro.read.Handle)
-		g.POST("", ro.create.Handle)
-		g.PATCH("/:id", ro.update.Handle)
-		g.PATCH("/:id/activate", ro.activate.Handle)
-		g.PATCH("/:id/deactivate", ro.deactivate.Handle)
-		g.DELETE("/:id", ro.delete.Handle)
+		g.GET("", ro.handler.List)
+		g.GET("/:id", ro.handler.Read)
+		g.POST("", ro.handler.Create)
+		g.PATCH("/:id", ro.handler.Update)
+		g.PATCH("/:id/activate", ro.handler.Activate)
+		g.PATCH("/:id/deactivate", ro.handler.Deactivate)
+		g.DELETE("/:id", ro.handler.Delete)
 	}
 }

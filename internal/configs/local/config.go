@@ -8,7 +8,7 @@ import (
 	"wizbackend/pkg/logging"
 )
 
-func GetConfig(appName string) configs.Config {
+func GetConfig(appName configs.AppName) configs.Config {
 
 	pgPort, err := strconv.Atoi(os.Getenv("PG_PORT"))
 	if err != nil {

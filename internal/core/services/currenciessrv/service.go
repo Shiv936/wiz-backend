@@ -8,7 +8,7 @@ import (
 	"wizbackend/pkg/logging"
 )
 
-type service struct {
+type Service struct {
 	logger               logging.Logger
 	currenciesRepository ports.RdbmsCurrenciesRepository
 }
@@ -16,18 +16,18 @@ type service struct {
 func New(
 	logger logging.Logger,
 	currenciesRepository ports.RdbmsCurrenciesRepository,
-) *service {
-	return &service{
+) *Service {
+	return &Service{
 		logger:               logger,
 		currenciesRepository: currenciesRepository,
 	}
 }
 
-func (s *service) Fetch(isoCode string) (services.Currency, bool, error) {
+func (s *Service) Fetch(isoCode string) (services.Currency, bool, error) {
 	return s.fetchOneCurrency(isoCode)
 }
 
-func (s *service) FetchMany(
+func (s *Service) FetchMany(
 	pageNumber uint,
 	itemsPerPage uint,
 	searchTerm *string,
@@ -82,7 +82,7 @@ func (s *service) FetchMany(
 
 }
 
-func (s *service) Create(
+func (s *Service) Create(
 	isoCode string,
 	name string,
 	symbol string,
@@ -116,7 +116,7 @@ func (s *service) Create(
 
 }
 
-func (s *service) Modify(
+func (s *Service) Modify(
 	isoCode string,
 	name *string,
 	symbol *string,
@@ -149,7 +149,7 @@ func (s *service) Modify(
 	return currency, nil
 }
 
-func (s *service) Remove(
+func (s *Service) Remove(
 	isoCode string,
 ) error {
 	err := s.currenciesRepository.DeleteOne(isoCode)
@@ -157,7 +157,7 @@ func (s *service) Remove(
 	return err
 }
 
-func (s *service) mapRepoDomainToService(
+func (s *Service) mapRepoDomainToService(
 	c rdbms.Currency,
 ) services.Currency {
 	return services.Currency{
@@ -168,7 +168,7 @@ func (s *service) mapRepoDomainToService(
 	}
 }
 
-func (s *service) fetchOneCurrency(isoCode string) (services.Currency, bool, error) {
+func (s *Service) fetchOneCurrency(isoCode string) (services.Currency, bool, error) {
 	repoCurrency, exists, err := s.currenciesRepository.SelectOne(isoCode)
 
 	if err != nil {

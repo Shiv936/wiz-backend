@@ -11,7 +11,7 @@ import (
 	"github.com/doug-martin/goqu/v9/exp"
 )
 
-type repository struct {
+type Repository struct {
 	logger logging.Logger
 	goquDB *goqu.Database
 }
@@ -19,14 +19,14 @@ type repository struct {
 func New(
 	logger logging.Logger,
 	goquDB *goqu.Database,
-) *repository {
-	return &repository{
+) *Repository {
+	return &Repository{
 		logger: logger,
 		goquDB: goquDB,
 	}
 }
 
-func (r *repository) SelectOne(
+func (r *Repository) SelectOne(
 	isoCode string,
 ) (rdbms.Currency, bool, error) {
 	var currency rdbms.Currency
@@ -53,7 +53,7 @@ func (r *repository) SelectOne(
 	return currency, true, nil
 }
 
-func (r *repository) SelectMany(
+func (r *Repository) SelectMany(
 	limit uint,
 	offset uint,
 	search ports.CurrenciesSearch,
@@ -114,7 +114,7 @@ func (r *repository) SelectMany(
 	return currencies, nil
 }
 
-func (r *repository) InsertOne(
+func (r *Repository) InsertOne(
 	isoCode string,
 	name string,
 	symbol string,
@@ -131,7 +131,7 @@ func (r *repository) InsertOne(
 
 	return err
 }
-func (r *repository) UpdateOne(
+func (r *Repository) UpdateOne(
 	isoCode string,
 	name *string,
 	symbol *string,
@@ -198,7 +198,7 @@ func (r *repository) UpdateOne(
 	return rowsAffected, err
 }
 
-func (r *repository) DeleteOne(
+func (r *Repository) DeleteOne(
 	isoCode string,
 ) error {
 	_, err := r.goquDB.Delete(TABLE).Where(
@@ -220,7 +220,7 @@ func (r *repository) DeleteOne(
 	return err
 }
 
-func (r *repository) getOrderedExpression(
+func (r *Repository) getOrderedExpression(
 	sort ports.CurrenciesSort,
 ) exp.OrderedExpression {
 	var columnName string
@@ -246,7 +246,7 @@ func (r *repository) getOrderedExpression(
 
 }
 
-func (r *repository) buildSearchWhereClauses(
+func (r *Repository) buildSearchWhereClauses(
 	search ports.CurrenciesSearch,
 ) []exp.Expression {
 	searchExpressions := []exp.Expression{}

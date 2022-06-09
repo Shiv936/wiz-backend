@@ -3,27 +3,11 @@ package countries
 import (
 	"net/http"
 	"wizbackend/internal/core/ports"
-	"wizbackend/pkg/logging"
 
 	"github.com/gin-gonic/gin"
 )
 
-type list struct {
-	logger           logging.Logger
-	countriesService ports.CountriesService
-}
-
-func NewList(
-	logger logging.Logger,
-	countriesService ports.CountriesService,
-) *list {
-	return &list{
-		logger:           logger,
-		countriesService: countriesService,
-	}
-}
-
-func (h *list) Handle(ctx *gin.Context) {
+func (h *Handler) List(ctx *gin.Context) {
 	var query listRequest
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
@@ -113,5 +97,5 @@ type listRequest struct {
 	SortField    *string `form:"sf" binding:"omitempty,alpha,oneof=iso createdat modifiedat name"`
 	SortOrder    *string `form:"so" binding:"omitempty,alpha,oneof=asc desc"`
 	SearchTerm   *string `form:"s"`
-	ShowDisabled bool   `form:"sd" binding:"omitempty"`
+	ShowDisabled bool    `form:"sd" binding:"omitempty"`
 }

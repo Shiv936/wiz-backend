@@ -8,7 +8,7 @@ import (
 	"wizbackend/pkg/logging"
 )
 
-type service struct {
+type Service struct {
 	logger              logging.Logger
 	countriesRepository ports.RdbmsCountriesRepository
 }
@@ -16,18 +16,18 @@ type service struct {
 func New(
 	logger logging.Logger,
 	countriesRepository ports.RdbmsCountriesRepository,
-) *service {
-	return &service{
+) *Service {
+	return &Service{
 		logger:              logger,
 		countriesRepository: countriesRepository,
 	}
 }
 
-func (s *service) Fetch(isoCode string) (services.Country, bool, error) {
+func (s *Service) Fetch(isoCode string) (services.Country, bool, error) {
 	return s.fetchOneCountry(isoCode)
 }
 
-func (s *service) FetchMany(
+func (s *Service) FetchMany(
 	pageNumber uint,
 	itemsPerPage uint,
 	searchTerm *string,
@@ -80,7 +80,7 @@ func (s *service) FetchMany(
 		Countries: countriesResult.countries,
 	}, nil
 }
-func (s *service) Create(
+func (s *Service) Create(
 	isoCode string,
 	name string,
 	iso3 *string,
@@ -116,7 +116,7 @@ func (s *service) Create(
 	return country, nil
 }
 
-func (s *service) Modify(
+func (s *Service) Modify(
 	isoCode string,
 	name *string,
 	iso3 *string,
@@ -152,13 +152,13 @@ func (s *service) Modify(
 
 }
 
-func (s *service) Remove(
+func (s *Service) Remove(
 	isoCode string,
 ) error {
 	return s.countriesRepository.DeleteOne(isoCode)
 }
 
-func (s *service) mapRepoDomainToService(
+func (s *Service) mapRepoDomainToService(
 	c rdbms.Country,
 ) services.Country {
 	var iso3 *string = nil
@@ -177,7 +177,7 @@ func (s *service) mapRepoDomainToService(
 	}
 }
 
-func (s *service) fetchOneCountry(
+func (s *Service) fetchOneCountry(
 	isoCode string,
 ) (services.Country, bool, error) {
 	repoCountry, exists, err := s.countriesRepository.SelectOne(isoCode)
@@ -198,7 +198,7 @@ type countryListResult struct {
 	err       error
 }
 
-func (s *service) fetchCountriesViaChannel(
+func (s *Service) fetchCountriesViaChannel(
 	itemsPerPage uint,
 	offset uint,
 	search ports.CountriesSearch,
@@ -235,7 +235,7 @@ type countryCountResult struct {
 	err   error
 }
 
-func (s *service) fetchCountriesCountViaChannel(
+func (s *Service) fetchCountriesCountViaChannel(
 	search ports.CountriesSearch,
 	filters ports.CountriesFilters,
 	c chan countryCountResult,

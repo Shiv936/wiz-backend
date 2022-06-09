@@ -4,8 +4,11 @@ import (
 	"wizbackend/pkg/logging"
 )
 
+type AppPort uint64
+type AppName string
+
 type Config struct {
-	AppName    string
+	AppName    AppName
 	Port       int
 	EnableAPM  bool
 	PgDbConfig PgDbConfig

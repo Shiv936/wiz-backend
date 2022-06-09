@@ -6,6 +6,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.1.0
 	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/gin-gonic/gin v1.8.0
+	github.com/google/wire v0.5.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/lib/pq v1.10.6
 	github.com/pressly/goose/v3 v3.5.3

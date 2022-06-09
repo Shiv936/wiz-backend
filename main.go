@@ -4,8 +4,8 @@ import (
 	"embed"
 	"flag"
 	"os"
-	apiserver "wizbackend/cmd/api_server"
-	dbmigration "wizbackend/cmd/db_migration"
+	"wizbackend/cmd/api"
+	"wizbackend/cmd/migrations"
 	"wizbackend/internal/configs"
 	"wizbackend/internal/configs/local"
 	"wizbackend/internal/configs/preprod"
@@ -17,6 +17,11 @@ import (
 //go:embed migrations/*.sql
 var embedMigrations embed.FS
 
+const (
+	API        configs.AppName = "wiz-backend-http-api"
+	MIGRATIONS configs.AppName = "wiz-backend-migrations"
+)
+
 func main() {
 
 	program := flag.String("program", "", "The Program that needs to run")
@@ -26,11 +31,12 @@ func main() {
 
 	switch *program {
 	case "migrations":
-		config := getConfig(envTier, "wiz-backend-migrations")
-		dbmigration.Init(embedMigrations, config)
+		config := getConfig(envTier, MIGRATIONS)
+		migrations.Initialize(embedMigrations, config)
 	case "http-api":
-		config := getConfig(envTier, "wiz-backend-http-api")
-		apiserver.Init(config)
+		config := getConfig(envTier, API)
+
+		api.Initialize(config)
 	default:
 		panic("could not understand the program that needed to be run")
 	}
@@ -38,7 +44,7 @@ func main() {
 
 func getConfig(
 	envTier string,
-	appName string,
+	appName configs.AppName,
 ) configs.Config {
 	var config configs.Config
 

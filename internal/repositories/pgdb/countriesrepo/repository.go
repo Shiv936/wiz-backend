@@ -10,7 +10,7 @@ import (
 	"github.com/doug-martin/goqu/v9/exp"
 )
 
-type repository struct {
+type Repository struct {
 	logger logging.Logger
 	goquDB *goqu.Database
 }
@@ -18,14 +18,14 @@ type repository struct {
 func New(
 	logger logging.Logger,
 	goquDB *goqu.Database,
-) *repository {
-	return &repository{
+) *Repository {
+	return &Repository{
 		logger: logger,
 		goquDB: goquDB,
 	}
 }
 
-func (r *repository) SelectOne(
+func (r *Repository) SelectOne(
 	isoCode string,
 ) (rdbms.Country, bool, error) {
 	var country rdbms.Country
@@ -51,7 +51,7 @@ func (r *repository) SelectOne(
 	return country, exists, nil
 }
 
-func (r *repository) SelectMany(
+func (r *Repository) SelectMany(
 	limit uint,
 	offset uint,
 	search ports.CountriesSearch,
@@ -101,7 +101,7 @@ func (r *repository) SelectMany(
 	return countries, nil
 }
 
-func (r *repository) InsertOne(
+func (r *Repository) InsertOne(
 	isoCode string,
 	name string,
 	iso3 *string,
@@ -121,7 +121,7 @@ func (r *repository) InsertOne(
 	return err
 }
 
-func (r *repository) UpdateOne(
+func (r *Repository) UpdateOne(
 	isoCode string,
 	name *string,
 	iso3 *string,
@@ -195,7 +195,7 @@ func (r *repository) UpdateOne(
 	return rowsAffected, err
 }
 
-func (r *repository) DeleteOne(
+func (r *Repository) DeleteOne(
 	isoCode string,
 ) error {
 	_, err := goqu.Delete(TABLE).Prepared(true).Where(
@@ -205,7 +205,7 @@ func (r *repository) DeleteOne(
 	return err
 }
 
-func (r *repository) Count(
+func (r *Repository) Count(
 	search ports.CountriesSearch,
 	filters ports.CountriesFilters,
 ) (int64, error) {
@@ -233,7 +233,7 @@ func (r *repository) Count(
 	return count, nil
 }
 
-func (r *repository) getOrderedExpression(
+func (r *Repository) getOrderedExpression(
 	sort ports.CountriesSort,
 ) exp.OrderedExpression {
 	var columnName string
@@ -259,7 +259,7 @@ func (r *repository) getOrderedExpression(
 
 }
 
-func (r *repository) buildSearchWhereClauses(
+func (r *Repository) buildSearchWhereClauses(
 	search ports.CountriesSearch,
 ) []exp.Expression {
 	searchExpressions := []exp.Expression{}

@@ -1,27 +1,32 @@
 package v1
 
 import (
-	"wizbackend/internal/handlers"
+	"wizbackend/internal/handlers/api/v1/countries"
+	"wizbackend/internal/handlers/api/v1/currencies"
 
 	"github.com/gin-gonic/gin"
 )
 
-type routes struct {
-	countryRoutes  handlers.GroupRoutes
-	currencyRoutes handlers.GroupRoutes
+type GroupRoutes interface {
+	Initialize(prefix string, r gin.IRouter)
+}
+
+type Routes struct {
+	countryRoutes  countries.GroupRoutes
+	currencyRoutes currencies.GroupRoutes
 }
 
 func New(
-	countryRoutes handlers.GroupRoutes,
-	currencyRoutes handlers.GroupRoutes,
-) *routes {
-	return &routes{
+	countryRoutes countries.GroupRoutes,
+	currencyRoutes currencies.GroupRoutes,
+) *Routes {
+	return &Routes{
 		countryRoutes:  countryRoutes,
 		currencyRoutes: currencyRoutes,
 	}
 }
 
-func (ro *routes) Initialize(prefix string, r gin.IRouter) {
+func (ro *Routes) Initialize(prefix string, r gin.IRouter) {
 
 	v1 := r.Group(prefix)
 	{

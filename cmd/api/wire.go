@@ -10,11 +10,14 @@ import (
 	"wizbackend/internal/core/ports"
 	"wizbackend/internal/core/services/countriessrv"
 	"wizbackend/internal/core/services/currenciessrv"
+	"wizbackend/internal/core/services/portssrv"
 	v1 "wizbackend/internal/handlers/api/v1"
 	"wizbackend/internal/handlers/api/v1/countries"
 	"wizbackend/internal/handlers/api/v1/currencies"
+	corePorts "wizbackend/internal/handlers/api/v1/ports"
 	"wizbackend/internal/repositories/pgdb/countriesrepo"
 	"wizbackend/internal/repositories/pgdb/currenciesrepo"
+	"wizbackend/internal/repositories/pgdb/portsrepo"
 
 	"github.com/google/wire"
 )
@@ -52,23 +55,23 @@ func InitializeApp(
 		//RouteHandlers
 		countries.NewHandler,
 		currencies.NewHandler,
-		ports.NewHandler,
+		corePorts.NewHandler,
 
 		//RouteHandlerBindings
 		wire.Bind(new(countries.RoutesHandler), new(*countries.Handler)),
 		wire.Bind(new(currencies.RoutesHandler), new(*currencies.Handler)),
-		wire.Bind(new(ports.RoutesHandler), new(*ports.Handler)),	
+		wire.Bind(new(corePorts.RoutesHandler), new(*corePorts.Handler)),
 
 		//Group Routes
 		countries.New,
 		currencies.New,
-		ports.New,
+		corePorts.New,
 		v1.New,
 
 		//Group Route Bindings
 		wire.Bind(new(countries.GroupRoutes), new(*countries.Routes)),
 		wire.Bind(new(currencies.GroupRoutes), new(*currencies.Routes)),
-		wire.Bind(new(ports.GroupRoutes), new(*ports.Routes)),
+		wire.Bind(new(corePorts.GroupRoutes), new(*corePorts.Routes)),
 		wire.Bind(new(v1.GroupRoutes), new(*v1.Routes)),
 
 		NewHttpEngine,

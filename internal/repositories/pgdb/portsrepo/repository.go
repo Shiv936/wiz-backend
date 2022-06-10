@@ -133,6 +133,7 @@ func (r *Repository) UpdateOne(
 	isoCode string,
 	name *string,
 	ptype *string,
+	countryIsoCode *string,
 	latitude *float64,
 	longitude *float64,
 	isActive *bool,

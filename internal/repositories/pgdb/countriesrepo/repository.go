@@ -150,7 +150,7 @@ func (r *Repository) UpdateOne(
 		return 0, nil
 	}
 
-	result, err := goqu.Update(TABLE).Prepared(true).Set(updates).Where(
+	result, err := r.goquDB.Update(TABLE).Prepared(true).Set(updates).Where(
 		goqu.C(ISO_CODE).Eq(isoCode),
 	).Executor().Exec()
 
@@ -198,7 +198,7 @@ func (r *Repository) UpdateOne(
 func (r *Repository) DeleteOne(
 	isoCode string,
 ) error {
-	_, err := goqu.Delete(TABLE).Prepared(true).Where(
+	_, err := r.goquDB.Delete(TABLE).Prepared(true).Where(
 		goqu.C(ISO_CODE).Eq(isoCode),
 	).Executor().Exec()
 

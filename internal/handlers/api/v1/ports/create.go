@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,8 @@ func (h *Handler) Create(ctx *gin.Context) {
 		query.IsActive,
 	)
 
-	if err != nil {
+	if err == nil {
+		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -33,7 +33,7 @@ func (r *Repository) SelectOne(
 	exists, err := r.goquDB.From(
 		TABLE,
 	).Prepared(true).Select(
-		ISO_CODE,
+		PORTS_CODE,
 		NAME,
 		TYPE,
 		COUNTRY_ISO_CODE,
@@ -43,7 +43,7 @@ func (r *Repository) SelectOne(
 		CREATED_AT,
 		MODIFIED_AT,
 	).Where(
-		goqu.C(ISO_CODE).Eq(isoCode),
+		goqu.C(PORTS_CODE).Eq(isoCode),
 	).ScanStruct(&port)
 
 	if err != nil {
@@ -79,7 +79,7 @@ func (r *Repository) SelectMany(
 	query := r.goquDB.From(
 		TABLE,
 	).Prepared(true).Select(
-		ISO_CODE,
+		PORTS_CODE,
 		NAME,
 		TYPE,
 		COUNTRY_ISO_CODE,
@@ -114,9 +114,10 @@ func (r *Repository) InsertOne(
 	longitude float64,
 	isActive bool,
 ) error {
+
 	_, err := r.goquDB.Insert(TABLE).Prepared(true).Rows(
 		goqu.Record{
-			ISO_CODE:         isoCode,
+			PORTS_CODE:         isoCode,
 			NAME:             name,
 			TYPE:             ptype,
 			COUNTRY_ISO_CODE: countryIsoCode,
@@ -165,7 +166,7 @@ func (r *Repository) UpdateOne(
 	}
 
 	result, err := r.goquDB.Update(TABLE).Prepared(true).Set(updates).Where(
-		goqu.C(ISO_CODE).Eq(isoCode),
+		goqu.C(PORTS_CODE).Eq(isoCode),
 	).Executor().Exec()
 
 	if err != nil {
@@ -217,7 +218,7 @@ func (r *Repository) DeleteOne(
 	isoCode string,
 ) error {
 	_, err := r.goquDB.Delete(TABLE).Prepared(true).Where(
-		goqu.C(ISO_CODE).Eq(isoCode),
+		goqu.C(PORTS_CODE).Eq(isoCode),
 	).Executor().Exec()
 
 	return err
@@ -267,7 +268,7 @@ func (r *Repository) getOrderedExpression(
 	case ports.PORT_COUNTRY_ISO_CODE:
 		columnName = COUNTRY_ISO_CODE
 	default:
-		columnName = ISO_CODE
+		columnName = PORTS_CODE
 	}
 
 	if sort.Order == ports.SORT_ASCENDING {
@@ -286,7 +287,7 @@ func (r *Repository) buildSearchWhereClauses(
 	if search.IsoCode != nil && len(strings.TrimSpace(*search.IsoCode)) > 0 {
 		searchExpressions = append(
 			searchExpressions,
-			goqu.C(ISO_CODE).Eq(
+			goqu.C(PORTS_CODE).Eq(
 				strings.ToUpper(strings.TrimSpace(*search.IsoCode)),
 			),
 		)

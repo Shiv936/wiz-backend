@@ -3,7 +3,7 @@ package services
 import "time"
 
 type Port struct {
-	IsoCode        string
+	Code        string
 	Name           string
 	Type           string
 	CountryIsoCode string

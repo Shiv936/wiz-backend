@@ -1,7 +1,6 @@
 package ports
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +14,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 	}
 
 	port, err := h.portsService.Create(
-		query.IsoCode,
+		query.Code,
 		query.Name,
 		query.Type,
 		query.CountryIsoCode,
@@ -24,8 +23,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 		query.IsActive,
 	)
 
-	if err == nil {
-		log.Println(err)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -34,7 +32,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 }
 
 type createRequest struct {
-	IsoCode  string `form:"iso" json:"iso" binding:"required,alpha"`
+	Code  string `form:"iso" json:"iso" binding:"required,alpha"`
 	Name     string `form:"nm" json:"nm" binding:"required,alpha"`
 	Type     string `form:"ty" json:"ty" binding:"required,alpha"`
 	CountryIsoCode string `form:"ciso" json:"ciso" binding:"required,alpha"`

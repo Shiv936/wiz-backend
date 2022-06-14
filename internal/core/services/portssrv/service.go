@@ -161,7 +161,7 @@ func (s *Service) mapRepoDomainToService(
 	c rdbms.Port,
 ) services.Port {
 	return services.Port{
-		IsoCode:        c.IsoCode,
+		Code:           c.Code,
 		Name:           c.Name,
 		Type:           c.Type,
 		CountryIsoCode: c.CountryIsoCode,

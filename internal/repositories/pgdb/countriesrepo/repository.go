@@ -117,7 +117,7 @@ func (r *Repository) InsertOne(
 			IS_ACTIVE:    isActive,
 		},
 	).Executor().Exec()
-
+	
 	return err
 }
 

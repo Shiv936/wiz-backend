@@ -13,7 +13,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "Successfully deleted")
+	ctx.JSON(http.StatusOK,gin.H{})
 	// deleteRequest
 	// if err := ctx.ShouldBindQuery(&query); err != nil {
 	// 	ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})

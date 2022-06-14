@@ -46,11 +46,7 @@ func (r *Repository) SelectOne(
 		return rdbms.Currency{}, false, err
 	}
 
-	if !exists {
-		return rdbms.Currency{}, false, nil
-	}
-
-	return currency, true, nil
+	return currency, exists, nil
 }
 
 func (r *Repository) SelectMany(
@@ -92,11 +88,11 @@ func (r *Repository) SelectMany(
 	)
 
 	err := query.ScanStructs(&currencies)
-
+	//log.Println(currencies)
 	if err != nil {
-		querySQL, params, qerr := query.ToSQL()
+		/*querySQL, params, qerr := query.ToSQL()
 
-		r.logger.Error(
+		 r.logger.Error(
 			"CURRENCY_LIST_SELECTION_FAILED",
 			"there was an issue when updating the country",
 			err,
@@ -106,7 +102,7 @@ func (r *Repository) SelectMany(
 				"params": params,
 				"error":  qerr.Error(),
 			},
-		)
+		) */
 
 		return []rdbms.Currency{}, err
 	}
@@ -155,7 +151,7 @@ func (r *Repository) UpdateOne(
 		return 0, nil
 	}
 
-	result, err := goqu.Update(TABLE).Prepared(true).Set(updates).Where(
+	result, err := r.goquDB.Update(TABLE).Prepared(true).Set(updates).Where(
 		goqu.C(ISO_CODE).Eq(isoCode),
 	).Executor().Exec()
 
@@ -205,7 +201,7 @@ func (r *Repository) DeleteOne(
 		goqu.C(ISO_CODE).Eq(isoCode),
 	).Executor().Exec()
 
-	if err != nil {
+	/* 	if err != nil {
 		r.logger.Error(
 			"CURRENCY_DELETION_FAILED",
 			"there was an issue when deleting the currency",
@@ -215,9 +211,36 @@ func (r *Repository) DeleteOne(
 			},
 			map[string]any{},
 		)
-	}
+	} */
 
 	return err
+}
+func (r *Repository) Count(
+	search ports.CurrenciesSearch,
+	filters ports.CurrenciesFilters,
+) (int64, error) {
+
+	w := []exp.Expression{}
+
+	if filters.IsActive != nil {
+		w = append(w, goqu.C(IS_ACTIVE).Eq(*filters.IsActive))
+	}
+
+	searchClauses := r.buildSearchWhereClauses(search)
+
+	if len(searchClauses) > 1 {
+		w = append(w, goqu.Or(searchClauses...))
+	} else if len(searchClauses) == 1 {
+		w = append(w, searchClauses[0])
+	}
+
+	count, err := r.goquDB.From(TABLE).Prepared(true).Where(w...).Count()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r *Repository) getOrderedExpression(

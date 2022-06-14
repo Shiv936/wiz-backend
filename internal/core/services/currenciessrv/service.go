@@ -31,54 +31,53 @@ func (s *Service) FetchMany(
 	pageNumber uint,
 	itemsPerPage uint,
 	searchTerm *string,
-	sort *ports.CurrenciesSort,
-	filters *ports.CurrenciesFilters,
-) ([]services.Currency, error) {
+	sort ports.CurrenciesSort,
+	filters ports.CurrenciesFilters,
+) (services.Currencies, error) {
 	if pageNumber == 0 {
 		pageNumber = 1
 	}
 
 	offset := (itemsPerPage * (pageNumber - 1))
 
-	sortBy := ports.CurrenciesSort{
-		Field: ports.CURRENCY_NAME,
-		Order: ports.SORT_ASCENDING,
-	}
-
-	if sort != nil {
-		sortBy = *sort
-	}
-
 	search := ports.CurrenciesSearch{
 		IsoCode: searchTerm,
 		Name:    searchTerm,
 	}
 
-	dbFilters := ports.CurrenciesFilters{}
+	currenciesChan := make(chan currencyListResult, 1)
+	currenciesCountChan := make(chan currencyCountResult, 1)
 
-	if filters != nil {
-		dbFilters = *filters
-	}
-
-	repoCurrencies, err := s.currenciesRepository.SelectMany(
+	go s.fetchCurrenciesViaChannel(
 		itemsPerPage,
 		offset,
 		search,
-		sortBy,
-		dbFilters,
+		sort,
+		filters,
+		currenciesChan,
 	)
 
-	if err != nil {
-		return []services.Currency{}, err
+	go s.fetchCurrenciesCountViaChannel(
+		search,
+		filters,
+		currenciesCountChan,
+	)
+
+	currenciesResult := <-currenciesChan
+
+	if currenciesResult.err != nil {
+		return services.Currencies{}, currenciesResult.err
 	}
 
-	currencies := make([]services.Currency, 0)
-
-	for _, c := range repoCurrencies {
-		currencies = append(currencies, s.mapRepoDomainToService(c))
+	currenciesCountResult := <-currenciesCountChan
+	if currenciesCountResult.err != nil {
+		return services.Currencies{}, currenciesResult.err
 	}
 
-	return currencies, nil
+	return services.Currencies{
+		Total:      currenciesCountResult.count,
+		Currencies: currenciesResult.currencies,
+	}, nil
 
 }
 
@@ -161,10 +160,12 @@ func (s *Service) mapRepoDomainToService(
 	c rdbms.Currency,
 ) services.Currency {
 	return services.Currency{
-		IsoCode:  c.IsoCode,
-		Name:     c.Name,
-		Symbol:   c.Symbol,
-		IsActive: c.IsActive,
+		IsoCode:    c.IsoCode,
+		Name:       c.Name,
+		Symbol:     c.Symbol,
+		IsActive:   c.IsActive,
+		CreatedAt:  c.CreatedAt,
+		ModifiedAt: c.ModifiedAt,
 	}
 }
 
@@ -180,4 +181,66 @@ func (s *Service) fetchOneCurrency(isoCode string) (services.Currency, bool, err
 	}
 
 	return s.mapRepoDomainToService(repoCurrency), true, nil
+}
+
+type currencyListResult struct {
+	currencies []services.Currency
+	err        error
+}
+
+func (s *Service) fetchCurrenciesViaChannel(
+	itemsPerPage uint,
+	offset uint,
+	search ports.CurrenciesSearch,
+	sortBy ports.CurrenciesSort,
+	filters ports.CurrenciesFilters,
+	c chan currencyListResult,
+) {
+	defer close(c)
+	repoCurrencies, err := s.currenciesRepository.SelectMany(
+		itemsPerPage,
+		offset,
+		search,
+		sortBy,
+		filters,
+	)
+
+	if err != nil {
+		c <- currencyListResult{err: err}
+	}
+
+	currencies := make([]services.Currency, 0)
+
+	for _, c := range repoCurrencies {
+		currencies = append(currencies, s.mapRepoDomainToService(c))
+	}
+
+	c <- currencyListResult{
+		currencies: currencies,
+	}
+}
+
+type currencyCountResult struct {
+	count int64
+	err   error
+}
+
+func (s *Service) fetchCurrenciesCountViaChannel(
+	search ports.CurrenciesSearch,
+	filters ports.CurrenciesFilters,
+	c chan currencyCountResult,
+) {
+	defer close(c)
+	count, err := s.currenciesRepository.Count(
+		search,
+		filters,
+	)
+
+	if err != nil {
+		c <- currencyCountResult{err: err}
+	}
+
+	c <- currencyCountResult{
+		count: count,
+	}
 }

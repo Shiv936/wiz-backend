@@ -29,6 +29,10 @@ type RdbmsCurrenciesRepository interface {
 	DeleteOne(
 		isoCode string,
 	) error
+	Count(
+		search CurrenciesSearch,
+		filters CurrenciesFilters,
+	) (int64, error)
 }
 
 type CurrenciesService interface {
@@ -37,9 +41,9 @@ type CurrenciesService interface {
 		pageNumber uint,
 		itemsPerPage uint,
 		searchTerm *string,
-		sort *CurrenciesSort,
-		filters *CurrenciesFilters,
-	) ([]services.Currency, error)
+		sort CurrenciesSort,
+		filters CurrenciesFilters,
+	) (services.Currencies, error)
 	Create(
 		isoCode string,
 		name string,

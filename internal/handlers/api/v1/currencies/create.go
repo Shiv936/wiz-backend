@@ -7,9 +7,10 @@ import (
 )
 
 func (h *Handler) Create(ctx *gin.Context) {
-	var query createRequest
-	if err := ctx.ShouldBindJSON(&query); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err})
+	var query createCurrency
+	if err := ctx.BindJSON(&query); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
 	}
 
 	currency, err := h.currenciesService.Create(
@@ -24,12 +25,20 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, currency)
+	response := createCurrency{
+		IsoCode:  currency.IsoCode,
+		Name:     currency.Name,
+		Symbol:   currency.Symbol,
+		IsActive: currency.IsActive,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
-type createRequest struct {
-	IsoCode  string `form:"iso" json:"iso" binding:"required,alpha"`
-	Name     string `form:"nm" json:"nm" binding:"required,alpha"`
-	Symbol   string `form:"sy" json:"sy" binding:"omitempty"`
-	IsActive bool   `form:"ia" json:"ia" binding:"required"`
+type createCurrency struct {
+	IsoCode  string `json:"ic" binding:"required"`
+	Name     string `json:"n" binding:"required"`
+	Symbol   string `json:"sym" binding:"required"`
+	IsActive bool   `json:"ia" binding:"required"`
 }
+

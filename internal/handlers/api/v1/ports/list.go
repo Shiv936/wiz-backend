@@ -9,7 +9,7 @@ import (
 
 func (h *Handler) List(ctx *gin.Context) {
 	var query portsListRequest
-	if err := ctx.ShouldBindQuery(&query); err != nil {
+	if err := ctx.ShouldBindJSON(&query); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}

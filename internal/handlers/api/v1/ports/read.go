@@ -33,5 +33,5 @@ func (h *Handler) Read(ctx *gin.Context) {
 }
 
 type readRequest struct {
-	PORT_ISO_CODE *string `form:"piso" json:"iso" binding:"required"`
+	PORT_ISO_CODE *string `form:"iso" json:"iso" binding:"required"`
 }

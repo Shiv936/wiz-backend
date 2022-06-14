@@ -34,6 +34,9 @@ func (s *Service) FetchMany(
 	sort ports.PortsSort,
 	filters ports.PortsFilters,
 ) (services.Ports, error) {
+
+	// log.Println("fetch many service")
+	// log.Println(pageNumber, itemsPerPage, searchTerm, sort, filters)
 	if pageNumber == 0 {
 		pageNumber = 1
 	}

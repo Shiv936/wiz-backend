@@ -68,6 +68,10 @@ func (r *Repository) SelectMany(
 		w = append(w, goqu.C(IS_ACTIVE).Eq(*filters.IsActive))
 	}
 
+	if filters.Type != nil {
+		w = append(w, goqu.C(TYPE).Eq(*filters.Type))
+	}
+
 	searchClauses := r.buildSearchWhereClauses(search)
 
 	if len(searchClauses) > 1 {
@@ -117,7 +121,7 @@ func (r *Repository) InsertOne(
 
 	_, err := r.goquDB.Insert(TABLE).Prepared(true).Rows(
 		goqu.Record{
-			PORTS_CODE:         isoCode,
+			PORTS_CODE:       isoCode,
 			NAME:             name,
 			TYPE:             ptype,
 			COUNTRY_ISO_CODE: countryIsoCode,

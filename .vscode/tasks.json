@@ -6,9 +6,9 @@
     "options": {
         "env": {
             "PG_HOST": "localhost",
-            "PG_PORT": "5432",
+            "PG_PORT": "55000",
             "PG_USERNAME": "postgres",
-            "PG_PASSWORD": "password",
+            "PG_PASSWORD": "postgrespw",
             "PG_DATABASE": "wiz_freight",
             "PG_DATABASE_PREFIX": "",
             "TIER": "LOCAL",

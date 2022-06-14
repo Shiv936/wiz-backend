@@ -67,6 +67,7 @@ func (h *Handler) List(ctx *gin.Context) {
 		itemsPerPage = *query.ItemsPerPage
 	}
 
+	// log.Println("search tern", *query.SearchTerm)
 	ports, err := h.portsService.FetchMany(
 		pageNumber,
 		itemsPerPage,
@@ -108,7 +109,7 @@ type portsListRequest struct {
 	ItemsPerPage *uint   `form:"ipp" json:"ipp" binding:"omitempty,numeric"`
 	SortField    *string `form:"sf" json:"sf" binding:"omitempty,alpha,oneof=iso createdat modifiedat name type countryiso"`
 	SortOrder    *string `form:"so" json:"so" binding:"omitempty,alpha,oneof=asc desc"`
-	SearchTerm   *string `form:"s" json:"s"`
+	SearchTerm   *string `form:"s" json:"s" binding:"omitempty"`
 	ShowDisabled bool    `form:"sd" json:"sd" binding:"omitempty"`
 	Type         string  `form:"ty" json:"ty" binding:"omitempty"`
 }

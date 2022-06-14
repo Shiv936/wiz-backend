@@ -91,8 +91,9 @@ type PortsSort struct {
 }
 
 type PortsSearch struct {
-	IsoCode *string
-	Name    *string
+	IsoCode        *string
+	Name           *string
+	CountryIsoCode *string
 }
 
 type PortsFilters struct {

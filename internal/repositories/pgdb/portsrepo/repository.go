@@ -1,6 +1,7 @@
 package portsrepo
 
 import (
+	"log"
 	"strings"
 	"wizbackend/internal/core/domain/repositories/rdbms"
 	"wizbackend/internal/core/ports"
@@ -60,6 +61,8 @@ func (r *Repository) SelectMany(
 	sort ports.PortsSort,
 	filters ports.PortsFilters,
 ) ([]rdbms.Port, error) {
+
+	// log.Println("search ---->", search.IsoCode, search.Name, search.CountryIsoCode)
 	var ports []rdbms.Port
 
 	w := []exp.Expression{}
@@ -74,11 +77,15 @@ func (r *Repository) SelectMany(
 
 	searchClauses := r.buildSearchWhereClauses(search)
 
+	log.Println("searchclauses", searchClauses)
+
 	if len(searchClauses) > 1 {
-		w = append(w, goqu.And(searchClauses...))
+		w = append(w, goqu.Or(searchClauses...))
 	} else if len(searchClauses) == 1 {
 		w = append(w, searchClauses[0])
 	}
+
+	log.Println("WWWWWWWww", w)
 
 	query := r.goquDB.From(
 		TABLE,
@@ -101,6 +108,8 @@ func (r *Repository) SelectMany(
 	)
 
 	err := query.ScanStructs(&ports)
+
+	log.Println("ports data", ports)
 
 	if err != nil {
 		return []rdbms.Port{}, err
@@ -288,23 +297,31 @@ func (r *Repository) buildSearchWhereClauses(
 ) []exp.Expression {
 	searchExpressions := []exp.Expression{}
 
+	//log.Println("isocode", *search.IsoCode)
+
 	if search.IsoCode != nil && len(strings.TrimSpace(*search.IsoCode)) > 0 {
 		searchExpressions = append(
 			searchExpressions,
-			goqu.C(PORTS_CODE).Eq(
-				strings.ToUpper(strings.TrimSpace(*search.IsoCode)),
-			),
+
+			goqu.C(PORTS_CODE).ILike("%"+strings.TrimSpace(*search.IsoCode)+"%"),
 		)
+
 	}
 
 	if search.Name != nil && len(strings.TrimSpace(*search.Name)) > 0 {
 		searchExpressions = append(
 			searchExpressions,
-			goqu.C(NAME).Eq(
-				goqu.C(NAME).ILike("%"+strings.ToLower(strings.TrimSpace(*search.Name))+"%"),
-			),
+			goqu.C(NAME).ILike("%"+strings.TrimSpace(*search.Name)+"%"),
 		)
 	}
 
+	if search.CountryIsoCode != nil && len(strings.TrimSpace(*search.CountryIsoCode)) > 0 {
+		searchExpressions = append(
+			searchExpressions,
+			goqu.C(COUNTRY_ISO_CODE).ILike("%"+strings.TrimSpace(*search.CountryIsoCode)+"%"),
+		)
+	}
+
+	// log.Println("searchExpressions", searchExpressions)
 	return searchExpressions
 }

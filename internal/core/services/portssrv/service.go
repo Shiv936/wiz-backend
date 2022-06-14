@@ -37,15 +37,19 @@ func (s *Service) FetchMany(
 
 	// log.Println("fetch many service")
 	// log.Println(pageNumber, itemsPerPage, searchTerm, sort, filters)
+	// log.Println("search tern", *searchTerm)
 	if pageNumber == 0 {
 		pageNumber = 1
 	}
 	offset := (pageNumber - 1) * itemsPerPage
 
 	search := ports.PortsSearch{
-		IsoCode: searchTerm,
-		Name:    searchTerm,
+		IsoCode:        searchTerm,
+		Name:           searchTerm,
+		CountryIsoCode: searchTerm,
 	}
+
+	// log.Println("search", search)
 
 	portsChan := make(chan portListResult, 1)
 	portsCountChan := make(chan portCountResult, 1)
@@ -205,6 +209,8 @@ func (s *Service) fetchPortsViaChannel(
 	filters ports.PortsFilters,
 	c chan portListResult,
 ) {
+
+	// log.Println("search ----", search)
 	defer close(c)
 	repoPorts, err := s.portsRepo.SelectMany(
 		itemsPerPage,
